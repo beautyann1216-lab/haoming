@@ -105,6 +105,14 @@
   .dtext{margin-top:20px;padding-top:20px;border-top:1px solid #ddd0b4;text-align:left;}
   .dtext p{font-size:13.5px;color:#4a443c;line-height:2.05;margin-bottom:13px;}
   .dtext p:last-child{margin-bottom:0;}
+  .dtext p.li{padding-left:15px;position:relative;}
+  .dtext p.li:before{content:'·';position:absolute;left:3px;color:var(--daji);font-weight:700;}
+  .dtext h4.dtitle{font-size:16px;font-weight:700;color:var(--ink);line-height:1.65;
+    margin:0 0 18px;padding-bottom:13px;border-bottom:1px solid #e2d8c4;letter-spacing:.03em;}
+  .dtext h5{font-size:14px;font-weight:700;color:var(--ink);line-height:1.65;
+    margin:26px 0 11px;letter-spacing:.03em;}
+  .dtext h5:before{content:'—　';color:var(--daji);font-weight:400;}
+  .dtext b{color:var(--ink);}
   .paywall{margin-top:20px;padding:18px 20px;background:#f4f0e6;border:1px solid #ddd0b4;border-radius:3px;text-align:center;}
   .paywall p{font-size:12.5px;color:var(--ink-soft);line-height:1.9;}
   .paywall p.invite{margin-top:11px;padding-top:10px;border-top:1px solid #e0d5bd;color:#4a443c;}
@@ -286,6 +294,23 @@ function diag(){
   document.getElementById('dbtn').onclick=askDeep;
 }
 
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function mdToHtml(md){
+  const out=[];
+  const bold = t => esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  for(let line of md.split('\n')){
+    line=line.trim();
+    if(!line) continue;
+    if(/^#{2,}\s+/.test(line))      out.push('<h5>'+bold(line.replace(/^#{2,}\s+/,''))+'</h5>');
+    else if(/^#\s+/.test(line))     out.push('<h4 class="dtitle">'+bold(line.replace(/^#\s+/,''))+'</h4>');
+    else if(/^[-*]\s+/.test(line))  out.push('<p class="li">'+bold(line.replace(/^[-*]\s+/,''))+'</p>');
+    else                            out.push('<p>'+bold(line)+'</p>');
+  }
+  return out.join('');
+}
+
 async function askDeep(){
   const btn=document.getElementById('dbtn');
   const box=document.getElementById('dout');
@@ -299,8 +324,7 @@ async function askDeep(){
     });
     const data=await res.json();
     if(!data.ok) throw new Error(data.error||'生成失敗');
-    const paras=data.text.split('\n').filter(x=>x.trim()).map(x=>'<p>'+x+'</p>').join('');
-    box.innerHTML='<div class="dtext">'+paras+'</div>';
+    box.innerHTML='<div class="dtext">'+mdToHtml(data.text)+'</div>';
     btn.style.display='none';
   }catch(err){
     box.innerHTML='<p class="derr">生成失敗：'+err.message+'<br>請稍後再試。</p>';
