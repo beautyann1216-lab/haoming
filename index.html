@@ -91,8 +91,16 @@
   .chips{display:flex;flex-wrap:wrap;gap:5px;}
   .chip{display:inline-block;padding:5px 9px;background:#fff;border:1px solid var(--line);
     border-radius:2px;font-size:16px;color:var(--ink);}
+  @keyframes flashbox{
+    0%{box-shadow:0 0 0 0 rgba(138,109,47,0);}
+    30%{box-shadow:0 0 0 4px rgba(138,109,47,.28);}
+    100%{box-shadow:0 0 0 0 rgba(138,109,47,0);}
+  }
+  .deepbox.flash{animation:flashbox 1.6s ease;border-color:var(--daji);}
   .deepbox{background:#f4f1e6;border:1px solid #ddd0b4;border-radius:3px;padding:22px 24px;text-align:center;}
-  .deepbox h4{font-size:14px;letter-spacing:.15em;margin-bottom:10px;color:var(--ink);}
+  .dtag{display:inline-block;font-size:10px;letter-spacing:.25em;color:#fff;
+    background:var(--daji);padding:3px 12px;border-radius:2px;margin-bottom:13px;}
+  .deepbox h4{font-size:15px;letter-spacing:.12em;margin-bottom:10px;color:var(--ink);}
   .dsub{font-size:12.5px;color:var(--ink-soft);line-height:1.9;margin-bottom:16px;}
   .dsub b{color:var(--ink);}
   .dbtn{font-family:inherit;font-size:14px;letter-spacing:.1em;padding:12px 26px;
@@ -243,7 +251,7 @@ function diag(){
       '<span class="rv">'+raw+'</span>'+
       '<span class="rt"><span class="lv '+lv+'">'+lv+'</span><div class="tt">'+title+'</div></span>'+
       (bad ? (k==='天格' ? TIANBOX
-        : '<div class="xn"><p>'+TX.XIONG_NOTE+'</p><a href="#">此格的完整解析與化解方向（進階內容）→</a></div>') : '')+
+        : '<div class="xn"><p>'+TX.XIONG_NOTE+'</p><a href="javascript:void(0)" onclick="gotoDeep()">此格的完整解析與化解方向（進階內容）→</a></div>') : '')+
       '</div>';
   }
   const ti=TX.TIAN[TKEY[rt.k]],di=TX.DI[DKEY[rd.k]],way=TX.WAY[scLv];
@@ -279,9 +287,10 @@ function diag(){
   };
 
   const deep='<div class="deepbox" id="deepbox">'+
+    '<div class="dtag">進 階 內 容　·　限 時 開 放</div>'+
     '<h4>只為你寫的那一份</h4>'+
-    '<p class="dsub">上面的解讀，是依你的配置分類給出的。<br>'+
-    '而你的五個數字合在一起，有一個只屬於你的故事——<b>那個，要為你單獨寫。</b></p>'+
+    '<p class="dsub">上面的解讀，是依你的配置分類給出的——<b>同樣配置的人，看到的是同一段話。</b><br>'+
+    '但你的五個數字合在一起，有一個只屬於你的結構。<b>那個，要為你單獨寫。</b></p>'+
     '<button class="dbtn" id="dbtn">為我深入解讀 →</button>'+
     '<div class="dout" id="dout"></div></div>';
 
@@ -294,6 +303,13 @@ function diag(){
   document.getElementById('dbtn').onclick=askDeep;
 }
 
+function gotoDeep(){
+  const box=document.getElementById('deepbox');
+  if(!box) return;
+  box.scrollIntoView({behavior:'smooth',block:'center'});
+  box.classList.add('flash');
+  setTimeout(()=>box.classList.remove('flash'),1600);
+}
 function esc(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
