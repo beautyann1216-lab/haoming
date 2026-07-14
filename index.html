@@ -7,7 +7,7 @@
 <style>
   :root{--ink:#2b2620;--ink-soft:#6b6259;--ink-faint:#9a9082;
     --paper:#f7f4ee;--paper-deep:#efe9df;--line:#d9d0c2;
-    --daji:#8a6d2f;--ji:#4a6b5a;--banji:#7a7266;--xiong:#9c5a48;--daxiong:#8a4535;
+    --seal:#a6402f;--daji:#8a6d2f;--ji:#4a6b5a;--banji:#7a7266;--xiong:#9c5a48;--daxiong:#8a4535;
     --mu:#5c7a52;--huo:#a35a45;--tu:#8a7350;--jin:#7d7f88;--shui:#4d6b80;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:"Noto Serif TC","Songti TC",serif;background:var(--paper);color:var(--ink);
@@ -103,6 +103,11 @@
   .deepbox h4{font-size:15px;letter-spacing:.12em;margin-bottom:10px;color:var(--ink);}
   .dsub{font-size:12.5px;color:var(--ink-soft);line-height:1.9;margin-bottom:16px;}
   .dsub b{color:var(--ink);}
+  .price{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:16px;}
+  .price .old{font-size:15px;color:#a89f92;text-decoration:line-through;text-decoration-thickness:1.5px;letter-spacing:.02em;}
+  .price .now{font-size:14px;font-weight:700;color:var(--seal,#a6402f);letter-spacing:.12em;}
+  .price .pnote{font-size:11px;color:var(--ink-faint);letter-spacing:.05em;}
+  .price{flex-wrap:wrap;}
   .dbtn{font-family:inherit;font-size:14px;letter-spacing:.1em;padding:12px 26px;
     background:var(--ink);color:#f7f4ee;border:none;border-radius:3px;cursor:pointer;transition:.2s;}
   .dbtn:hover{background:#413a31;}
@@ -124,6 +129,14 @@
   .paywall{margin-top:20px;padding:18px 20px;background:#f4f0e6;border:1px solid #ddd0b4;border-radius:3px;text-align:center;}
   .paywall p{font-size:12.5px;color:var(--ink-soft);line-height:1.9;}
   .paywall p.invite{margin-top:11px;padding-top:10px;border-top:1px solid #e0d5bd;color:#4a443c;}
+  .dtext.names{text-align:left;}
+  .dtext.names h5{font-size:19px;letter-spacing:.12em;margin:22px 0 8px;padding-top:16px;border-top:1px solid #e2d8c4;}
+  .dtext.names h5:first-child{margin-top:0;padding-top:0;border-top:none;}
+  .dtext.names h5:before{content:'';}
+  .dtext.names p{font-size:13px;line-height:1.95;color:#5a5248;}
+  .renote{margin-top:20px;padding-top:14px;border-top:1px solid #e0d5bd;
+    font-size:12px;color:var(--ink-soft);line-height:1.9;}
+  .renote b{color:var(--ink);}
   .paywall b{color:var(--ink);}
   .paywall a{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--daji);text-decoration:none;border-bottom:1px solid #d8cbae;}
   .about{margin-top:30px;padding:20px 22px;background:#f4f1e8;border:1px solid #ddd4c4;border-radius:3px;}
@@ -287,10 +300,11 @@ function diag(){
   };
 
   const deep='<div class="deepbox" id="deepbox">'+
-    '<div class="dtag">進 階 內 容　·　限 時 開 放</div>'+
+    '<div class="dtag">進 階 內 容</div>'+
     '<h4>只為你寫的那一份</h4>'+
     '<p class="dsub">上面的解讀，是依你的配置分類給出的——<b>同樣配置的人，看到的是同一段話。</b><br>'+
     '但你的五個數字合在一起，有一個只屬於你的結構。<b>那個，要為你單獨寫。</b></p>'+
+    '<div class="price"><span class="old">NT$199</span><span class="now">限時免費</span></div>'+
     '<button class="dbtn" id="dbtn">為我深入解讀 →</button>'+
     '<div class="dout" id="dout"></div></div>';
 
@@ -363,7 +377,7 @@ function name(){
   const byStroke={};
   for(const c in pool){const n=pool[c];(byStroke[n]=byStroke[n]||[]).push(c);}
   const strokes=Object.keys(byStroke).map(Number).sort((a,b)=>a-b);
-  const res={}; let combos=0;
+  const res={}; let combos=0; const comboList=[];
   const add=(pos,n)=>{res[pos]=res[pos]||{};res[pos][n]=byStroke[n];};
   if(len===2){
     for(const a of strokes)for(const b of strokes){
@@ -371,7 +385,7 @@ function name(){
       if(!GOOD.has(lvOf(ren))||!GOOD.has(lvOf(di))||!GOOD.has(lvOf(wai))||!GOOD.has(lvOf(zong)))continue;
       const T=wx(tian),R=wx(ren),D=wx(di);
       if(!(okRel(relRaw(R,T).k)&&okRel(relRaw(R,D).k)))continue;
-      combos++; add('第一字',a); add('第二字',b);
+      combos++; add('第一字',a); add('第二字',b); comboList.push([a,b]);
     }
   }else{
     for(const a of strokes){
@@ -380,7 +394,7 @@ function name(){
       if(!GOOD.has(lvOf(ren))||!GOOD.has(lvOf(di))||!GOOD.has(lvOf(wai))||!GOOD.has(lvOf(zong)))continue;
       const T=wx(tian),R=wx(ren),D=wx(di);
       if(!(okRel(relRaw(R,T).k)&&okRel(relRaw(R,D).k)))continue;
-      combos++; add('名',a);
+      combos++; add('名',a); comboList.push([a]);
     }
   }
   const tianLv=lvOf(tian);
@@ -400,14 +414,57 @@ function name(){
     }
     body+='</div>';
   }
-  const pay='<div class="paywall">'+
+  // 供 AI 取名使用的資料
+  const posList = (len===2?['第一字','第二字']:['名']);
+  const fmt = pos => Object.keys(res[pos]).map(Number).sort((a,b)=>a-b)
+    .map(n=>n+'劃：'+res[pos][n].join('、')).join('\n');
+  window.__namePayload = {
+    mode:'name',
+    surname: s.join(''),
+    surnameStroke: sv.join('+'),
+    gender: {female:'女性用字',male:'男性用字',neutral:'中性用字'}[gender],
+    first: fmt(posList[0]),
+    second: len===2 ? fmt('第二字') : '（單名，無第二字）',
+    combos: len===2
+      ? comboList.map(c=>'第一字'+c[0]+'劃 + 第二字'+c[1]+'劃').join('；')
+      : comboList.map(c=>'名 '+c[0]+'劃').join('；')
+  };
+
+  const pay='<div class="paywall" id="namebox">'+
     '<p>以上是<b>命理上合格</b>的候選字——五格與三才皆吉。<br>'+
     '至於怎麼組合、好不好聽、會不會諧音尷尬——<b>那是人的事，不是筆劃的事。</b></p>'+
     '<p class="invite"><b>接下來交給我。</b>我會為這些字揉進意境、寫下寓意，也幫你避開尷尬的諧音——<br>'+
     '<b>最後選哪一個，尊重你的決定。</b></p>'+
-    '<a href="#">為我取名（進階內容）→</a></div>';
+    '<div class="price"><span class="old">NT$150</span><span class="now">限時免費</span>'+
+    '<span class="pnote">3 次生成・9 個名字</span></div>'+
+    '<button class="dbtn" id="nbtn">為我取名 →</button>'+
+    '<div class="dout" id="nout"></div></div>';
   out.innerHTML=head+((tianLv==='凶'||tianLv==='大凶')?'<div class="tianwrap">'+TIANBOX+'</div>':'')+
     '<div class="sect">符 合 條 件 的 候 選 字</div>'+body+pay;
+  document.getElementById('nbtn').onclick=askName;
+}
+
+async function askName(){
+  const btn=document.getElementById('nbtn');
+  const box=document.getElementById('nout');
+  btn.disabled=true; btn.textContent='正在為你取名…';
+  box.innerHTML='<p class="loading">請稍候，這需要一點時間——<br>好名字值得等。</p>';
+  try{
+    const res=await fetch(BACKEND,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(window.__namePayload)
+    });
+    const data=await res.json();
+    if(!data.ok) throw new Error(data.error||'生成失敗');
+    box.innerHTML='<div class="dtext names">'+mdToHtml(data.text)+'</div>'+
+      '<p class="renote">喜歡哪一個？把它輸入到<b>「診斷現有名字」</b>，<br>就能看見這個名字完整的三才五格與出路。</p>';
+    btn.textContent='再生成三個 →';
+    btn.disabled=false;
+  }catch(err){
+    box.innerHTML='<p class="derr">生成失敗：'+err.message+'<br>請稍後再試。</p>';
+    btn.disabled=false; btn.textContent='再試一次 →';
+  }
 }
 
 /* tabs */
